@@ -6,3 +6,8 @@
 
 # Development Environment
 - Python 3
+
+
+# External API
+- Elsevier's API: Article (Full Text) Retrieval API
+- Elsevier's API: ScienceDirect Search API
