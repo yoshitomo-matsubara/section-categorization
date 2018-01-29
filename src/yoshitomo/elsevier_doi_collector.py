@@ -9,7 +9,8 @@ def read_file(file_path):
     value_list = []
     with open(file_path, 'r') as fp:
         for line in fp:
-            value_list.append(line.strip())
+            if line != '\n':
+                value_list.append(line.strip())
     return value_list
 
 
@@ -38,7 +39,7 @@ def collect_dois(journal_name, elsevier, output_dir_path, size=100, count=100):
         doi_set.update(extracted_doi_set)
         start_idx += entry_size
 
-    file_name = journal_name.lower().replace(' ', '_') + '.txt'
+    file_name = journal_name.lower().replace(' ', '_').replace('&', 'and') + '.txt'
     with open(output_dir_path + file_name, 'w') as fp:
         for doi in doi_set:
             fp.write(doi + '\n')

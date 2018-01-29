@@ -9,5 +9,5 @@
 
 
 # External API
-- Elsevier's API: Article (Full Text) Retrieval API
-- Elsevier's API: ScienceDirect Search API
+- Elsevier: Article (Full Text) Retrieval API
+- Elsevier: ScienceDirect Search API
