@@ -1,7 +1,7 @@
 # Section Classification in Scientific Papers
 # Team Member
 - **Yoshitomo Matsubara**
--
+- **Wei Hu**
 -
 
 # Development Environment
