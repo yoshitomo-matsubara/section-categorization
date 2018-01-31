@@ -1,99 +1,6 @@
 import argparse
 import os
-import xml.etree.ElementTree as ET
-
-
-ROOT_NS = '{http://www.elsevier.com/xml/svapi/article/dtd}'
-DOC_NS = '{http://www.elsevier.com/xml/xocs/dtd}'
-ARTICLE_NS = '{http://www.elsevier.com/xml/ja/dtd}'
-CE_NS = '{http://www.elsevier.com/xml/common/dtd}'
-
-
-class Section:
-    def __init__(self, title, index):
-        self.child_list = list()
-        self.title = title
-        self.index = index
-        self.first_block = None
-        self.last_block = None
-
-    def add_child(self, title):
-        idx = len(self.child_list) + 1
-        self.child_list.append(Section(title, idx))
-
-    def add_block(self, block):
-        if self.first_block is None:
-            self.first_block = block
-        else:
-            self.last_block = block
-
-
-class Paper:
-    def __init__(self, xml_file_path, raw_file_path):
-        self.xml_file_path = xml_file_path
-        self.raw_file_path = raw_file_path
-        self.xml_tree = None
-        self.raw_lines = None
-        self.section_list = list()
-
-    def read_files(self):
-        self.xml_tree = ET.parse(self.xml_file_path)
-        with open(self.raw_file_path, 'r') as fp:
-            self.raw_lines = fp.readlines()
-
-    def add_section(self, child):
-        section_element = child.find(DOC_NS + 'item-toc-section-title')
-        section = Section(section_element.text, len(self.section_list) + 1)
-        if child.find(DOC_NS + 'item-toc-entry') is not None:
-            for sub_child in child.findall(DOC_NS + 'item-toc-entry'):
-                subsection_element = sub_child.find(DOC_NS + 'item-toc-section-title')
-                section.add_child(subsection_element.text)
-        self.section_list.append(section)
-
-    def extract_structure(self):
-        root = self.xml_tree.getroot()
-        meta = root.find(ROOT_NS + 'originalText').find(DOC_NS + 'doc').find(DOC_NS + 'meta')
-        item_toc = meta.find(DOC_NS + 'item-toc')
-        if item_toc is None:
-            return False
-        for child in item_toc.getchildren():
-            self.add_section(child)
-        return True
-
-    def extract_first_and_last_blocks(self):
-        print(self.xml_file_path)
-        root = self.xml_tree.getroot()
-        serial_item = root.find(ROOT_NS + 'originalText').find(DOC_NS + 'doc').find(DOC_NS + 'serial-item')
-        article = serial_item.find(ARTICLE_NS + 'article')
-        if article is None:
-            article = serial_item.find(ARTICLE_NS + 'converted-article')
-        sections = article.find(ARTICLE_NS + 'body').find(CE_NS + 'sections')
-        valid_section_list = list()
-        for section in sections:
-            if section.find(CE_NS + 'label') is not None:
-                valid_section_list.append(section)
-
-        index = 0
-        last_index = len(valid_section_list) - 1
-        for section in valid_section_list:
-            label = section.find(CE_NS + 'label').text
-            title = section.find(CE_NS + 'section-title').text
-            block = label + ' ' + title
-            if index < last_index and section.find(CE_NS + 'para') is not None:
-                para = section.find(CE_NS + 'para').text
-                block += ' ' + para
-            self.section_list[index].add_block(block)
-            if index > 0:
-                self.section_list[index - 1].add_block(block)
-            if index == last_index:
-                paras = section.findall(CE_NS + 'para')
-                if len(paras) == 0:
-                    sub_sections = section.findall(CE_NS + 'section')
-                    paras = sub_sections[-1].findall(CE_NS + 'para')
-
-                para = paras[len(paras) - 1].text
-                self.section_list[index].add_block(para)
-            index += 1
+from common import Paper
 
 
 def get_file_path_list_and_name_set(input_dir_path):
@@ -127,6 +34,10 @@ def clean(paper, base_output_dir_path):
     if not complete:
         return False
     paper.extract_first_and_last_blocks()
+    complete = paper.extract_abstract()
+    if not complete:
+        return False
+
     return True
 
     # output_dir_path = os.path.join(base_output_dir_path, dir_name)
@@ -141,6 +52,7 @@ def main(args):
         complete = clean(paper, args.output)
         if complete:
             count += 1
+    print(count)
 
 
 if __name__ == '__main__':
