@@ -48,6 +48,7 @@ def collect_dois(journal_name, elsevier, output_dir_path, size=100, count=100):
     with open(output_dir_path + file_name, 'w') as fp:
         for doi in doi_set:
             fp.write(doi + '\n')
+    print('\tDownloaded', len(doi_set), '/', size)
 
 
 def main(args):
