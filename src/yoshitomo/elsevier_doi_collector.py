@@ -17,6 +17,8 @@ def read_file(file_path):
 def extract_dois(result, journal_name):
     doi_set = set()
     json_dict = json.loads(result.decode("utf-8"))
+    if 'search-results' not in json_dict:
+        return None, 0
     entries = json_dict['search-results']['entry']
     for entry in entries:
         if entry['prism:publicationName'] == journal_name:
@@ -36,6 +38,9 @@ def collect_dois(journal_name, elsevier, output_dir_path, size=100, count=100):
         start_idx_str = 'start=' + str(start_idx)
         result = elsevier.search_request([start_idx_str, count_str, encoded_key, content])
         extracted_doi_set, entry_size = extract_dois(result, journal_name)
+        if extracted_doi_set is None:
+            print('\tNo more DOIs')
+            break
         doi_set.update(extracted_doi_set)
         start_idx += entry_size
 
@@ -43,6 +48,7 @@ def collect_dois(journal_name, elsevier, output_dir_path, size=100, count=100):
     with open(output_dir_path + file_name, 'w') as fp:
         for doi in doi_set:
             fp.write(doi + '\n')
+    print('\tDownloaded', len(doi_set), '/', size)
 
 
 def main(args):
@@ -52,11 +58,12 @@ def main(args):
         os.makedirs(args.output)
     for journal_name in journal_names:
         print(journal_name)
-        collect_dois(journal_name, elsevier, args.output)
+        collect_dois(journal_name, elsevier, args.output, size=args.size)
 
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description=os.path.basename(__file__))
     arg_parser.add_argument('-input', required=True, help='[input] journal list file path')
+    arg_parser.add_argument('-size', required=False, type=int, default=100, help='[input] number of DOIs to download')
     arg_parser.add_argument('-output', required=True, help='[output] output dir path')
     main(arg_parser.parse_args())

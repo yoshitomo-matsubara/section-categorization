@@ -22,11 +22,12 @@ def download_text(doi_list, elsevier, is_raw, base_output_dir):
     http_accept = 'httpAccept=text/plain' if is_raw else 'httpAccept=text/xml'
     element = doi_list[0].split('/')[1]
     dir_name = element[element.find('.') + 1:element.find('.', 2)]
+    ext = '.txt' if is_raw else '.xml'
     output_dir_path = os.path.join(base_output_dir, dir_name)
     if not os.path.exists(output_dir_path):
         os.makedirs(output_dir_path)
     for doi in doi_list:
-        file_name = doi.replace('/', '-').replace('.', '_') + '.xml'
+        file_name = doi.replace('/', '-').replace('.', '_').replace('(', '').replace(')', '') + ext
         text = elsevier.text_request(doi, [http_accept])
         output_file_path = os.path.join(output_dir_path, file_name)
         with open(output_file_path, 'w') as fp:
