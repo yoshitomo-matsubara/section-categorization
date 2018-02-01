@@ -27,7 +27,7 @@ def download_text(doi_list, elsevier, is_raw, base_output_dir):
     if not os.path.exists(output_dir_path):
         os.makedirs(output_dir_path)
     for doi in doi_list:
-        file_name = doi.replace('/', '-').replace('.', '_') + ext
+        file_name = doi.replace('/', '-').replace('.', '_').replace('(', '').replace(')', '') + ext
         text = elsevier.text_request(doi, [http_accept])
         output_file_path = os.path.join(output_dir_path, file_name)
         with open(output_file_path, 'w') as fp:
