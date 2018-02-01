@@ -20,11 +20,11 @@ def get_paper_list(xml_dir_path, raw_dir_path):
     xml_file_path_dict = get_file_path_list_and_name_set(xml_dir_path)
     raw_file_path_dict = get_file_path_list_and_name_set(raw_dir_path)
     paper_list = list()
-    for xml_file_name in xml_file_path_dict.keys():
-        if xml_file_name in raw_file_path_dict:
-            paper_list.append(Paper(xml_file_path_dict[xml_file_name], raw_file_path_dict[xml_file_name]))
+    for modified_doi in xml_file_path_dict.keys():
+        if modified_doi in raw_file_path_dict:
+            paper_list.append(Paper(modified_doi, xml_file_path_dict[modified_doi], raw_file_path_dict[modified_doi]))
         else:
-            print('Could not find a pair of', xml_file_name, ' xml and txt files')
+            print('Could not find a pair of', modified_doi, ' xml and txt files')
     return paper_list
 
 
@@ -33,16 +33,24 @@ def clean(paper, base_output_dir_path):
     complete = paper.extract_structure()
     if not complete:
         return False
-    paper.extract_first_and_last_blocks()
     complete = paper.extract_abstract()
     if not complete:
         return False
+    complete = paper.extract_sections()
+    if not complete:
+        return False
 
+    if not os.path.exists(base_output_dir_path):
+        os.makedirs(base_output_dir_path)
+    output_file_path = os.path.join(base_output_dir_path, paper.modified_doi + '.txt')
+    for section in paper.section_list:
+        if section.prefix is None or section.text is None:
+            return False
+    with open(output_file_path, 'w') as fp:
+        for section in paper.section_list:
+            fp.write(section.prefix + '\n')
+            fp.write(section.text + '\n\n')
     return True
-
-    # output_dir_path = os.path.join(base_output_dir_path, dir_name)
-    # if not os.path.exists(output_dir_path):
-    #     os.makedirs(output_dir_path)
 
 
 def main(args):
@@ -52,7 +60,7 @@ def main(args):
         complete = clean(paper, args.output)
         if complete:
             count += 1
-    print(count)
+    print('Cleaned', count, '/', len(paper_list))
 
 
 if __name__ == '__main__':
