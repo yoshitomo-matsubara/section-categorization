@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 from common import Paper
 
 
@@ -40,16 +41,22 @@ def clean(paper, base_output_dir_path):
     if not complete:
         return False
 
-    if not os.path.exists(base_output_dir_path):
-        os.makedirs(base_output_dir_path)
-    output_file_path = os.path.join(base_output_dir_path, paper.modified_doi + '.txt')
+    output_dir_path = os.path.join(base_output_dir_path, paper.modified_doi)
+    if not os.path.exists(output_dir_path):
+        os.makedirs(output_dir_path)
     for section in paper.section_list:
         if section.prefix is None or section.text is None:
             return False
+        file_name = re.sub(re.compile("[!-/:-@[-`{-~ ]"), '_', section.title.lower()) + '.txt'
+        output_file_path = os.path.join(output_dir_path, file_name)
+        with open(output_file_path, 'w') as fp:
+            fp.write('\t'.join([str(section.index), section.title, str(len(section.child_list))]) + '\n')
+            fp.write(section.text + '\n')
+
+    output_file_path = os.path.join(output_dir_path, 'a-abstract.txt')
     with open(output_file_path, 'w') as fp:
-        for section in paper.section_list:
-            fp.write(section.prefix + '\n')
-            fp.write(section.text + '\n\n')
+        fp.write('\t'.join(['0', 'Abstract', '0']) + '\n')
+        fp.write(paper.abstract + '\n')
     return True
 
 

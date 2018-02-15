@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 ELSEVIER_API_KEY_FILE_PATH = './resource/elsevier_api_key.txt'
 ROOT_NS = '{http://www.elsevier.com/xml/svapi/article/dtd}'
 DOC_NS = '{http://www.elsevier.com/xml/xocs/dtd}'
-ARTICLE_NS = '{http://www.elsevier.com/xml/ja/dtd}'
+ARTICLE_NS = '{http://www.elsevier.com/xml/*/dtd}'
 CE_NS = '{http://www.elsevier.com/xml/common/dtd}'
 
 
@@ -89,6 +89,8 @@ class Paper:
             if abstract_str is None and line.find(abstract_prefix) >= 0:
                 abstract_str = line[line.find(abstract_prefix):]
             elif line.find(abstract_suffix) >= 0:
+                if abstract_str is None:
+                    return False
                 abstract_str += line[:line.find(abstract_suffix)]
                 break
             elif abstract_str is not None:
