@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 ELSEVIER_API_KEY_FILE_PATH = './resource/elsevier_api_key.txt'
 ROOT_NS = '{http://www.elsevier.com/xml/svapi/article/dtd}'
 DOC_NS = '{http://www.elsevier.com/xml/xocs/dtd}'
-ARTICLE_NS = '{http://www.elsevier.com/xml/*/dtd}'
+ARTICLE_NS = '{http://www.elsevier.com/xml/ja/dtd}'
 CE_NS = '{http://www.elsevier.com/xml/common/dtd}'
 
 
@@ -38,10 +38,17 @@ class Section:
         self.index = index
         self.prefix = str(self.index) + ' ' + self.title
         self.text = None
+        self.ref_id_list = list()
+        self.ref_id_set = list()
 
     def add_child(self, title):
         idx = len(self.child_list) + 1
         self.child_list.append(Section(title, idx))
+
+    def header(self):
+        ref_id_list_str = ','.join(self.ref_id_list)
+        return '\t'.join([str(self.index), self.title, str(len(self.child_list)),
+                          str(len(self.ref_id_set)), ref_id_list_str])
 
 
 class Paper:
@@ -74,12 +81,60 @@ class Paper:
 
     def extract_structure(self):
         root = self.xml_tree.getroot()
-        meta = root.find(ROOT_NS + 'originalText').find(DOC_NS + 'doc').find(DOC_NS + 'meta')
+        doc = root.find(ROOT_NS + 'originalText').find(DOC_NS + 'doc')
+        meta = doc.find(DOC_NS + 'meta')
         item_toc = meta.find(DOC_NS + 'item-toc')
         if item_toc is None:
             return False
         for child in item_toc.getchildren():
             self.add_section(child)
+
+        serial_item = doc.find(DOC_NS + 'serial-item')
+        if serial_item is None:
+            return False
+
+        article = serial_item.find(ARTICLE_NS + 'article')
+        if article is None:
+            return False
+
+        body = article.find(ARTICLE_NS + 'body')
+        if body is None:
+            return False
+
+        sections = body.find(CE_NS + 'sections')
+        if sections is None:
+            return False
+
+        toc_index = 0
+        for child in sections.getchildren():
+            toc_index += 1
+            if child is None:
+                continue
+
+            section_title = child.find(CE_NS + 'section-title')
+            if section_title is None:
+                return False
+
+            title = section_title.text
+            if title != self.toc_list[toc_index - 1].title:
+                return False
+
+            raw_xml_text = str(ET.tostring(child))
+            index = raw_xml_text.find('refid')
+            ref_id_list = list()
+            while index >= 0:
+                raw_xml_text = raw_xml_text[index:]
+                start_idx = raw_xml_text.find('\"')
+                raw_xml_text = raw_xml_text[start_idx + 1:]
+                end_idx = raw_xml_text.find('\"')
+                ref_id_str = raw_xml_text[:end_idx]
+                index = raw_xml_text.find('refid')
+                ref_ids = ref_id_str.split(' ')
+                for ref_id in ref_ids:
+                    if ref_id.lower().startswith('b'):
+                        ref_id_list.append(ref_id)
+            self.toc_list[toc_index - 1].ref_id_list.extend(ref_id_list)
+            self.toc_list[toc_index - 1].ref_id_set = set(self.toc_list[toc_index - 1].ref_id_list)
         return True
 
     def extract_abstract(self, abstract_prefix='Abstract', abstract_suffix='0 false'):
