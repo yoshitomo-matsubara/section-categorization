@@ -50,12 +50,12 @@ def clean(paper, base_output_dir_path):
         file_name = re.sub(re.compile("[!-/:-@[-`{-~ ]"), '_', section.title.lower()) + '.txt'
         output_file_path = os.path.join(output_dir_path, file_name)
         with open(output_file_path, 'w') as fp:
-            fp.write('\t'.join([str(section.index), section.title, str(len(section.child_list))]) + '\n')
+            fp.write(section.header() + '\n')
             fp.write(section.text + '\n')
 
     output_file_path = os.path.join(output_dir_path, 'a-abstract.txt')
     with open(output_file_path, 'w') as fp:
-        fp.write('\t'.join(['0', 'Abstract', '0']) + '\n')
+        fp.write('\t'.join(['0', 'Abstract', '0', '0', '']) + '\n')
         fp.write(paper.abstract + '\n')
     return True
 
