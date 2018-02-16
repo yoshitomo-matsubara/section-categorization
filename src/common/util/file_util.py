@@ -24,9 +24,14 @@ def get_dir_list(dir_path, is_recursive=False):
     return dir_list
 
 
-def make_parent_dirs(dir_path):
+def make_dirs(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
+
+
+def make_parent_dirs(file_path):
+    dir_path = os.path.dirname(file_path)
+    make_dirs(dir_path)
 
 
 def read_header(file_path):
@@ -36,6 +41,5 @@ def read_header(file_path):
 
 
 def copy_file(src_file_path, dst_file_path):
-    parent_dir_path = os.path.abspath(os.path.dirname(dst_file_path))
-    make_parent_dirs(parent_dir_path)
+    make_parent_dirs(dst_file_path)
     shutil.copy(src_file_path, dst_file_path)
