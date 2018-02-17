@@ -28,9 +28,8 @@ def extract_dois(result, journal_name):
 
 def collect_dois(journal_name, elsevier, output_dir_path, size=100, count=100):
     content = 'content=journals'
-    elements = journal_name.replace(' and ', ' ').split(' ')
-    key = 'KEY(' + '0000'.join(elements) + ')'
-    encoded_key = 'query=' + urllib.parse.quote(key).replace('0000', '+OR+')
+    key = 'SRCTITLE(' + journal_name + ')'
+    encoded_key = 'query=' + str(urllib.parse.quote(key))
     count_str = 'count=' + str(count)
     doi_set = set()
     start_idx = 0
