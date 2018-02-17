@@ -3,9 +3,9 @@ import os
 from util import file_util, config
 
 
-INTRO_WORDS = ['introduction', 'intro', 'motivation', 'background']
-CONCLUSION_WORDS = ['conclusion']
+CONCLUSION_WORDS = ['conclusion', 'conclud', 'summary']
 RELATED_WORDS = ['related', 'previous']
+INTRO_WORDS = ['introduction', 'intro', 'motivation', 'background']
 EXPERIMENT_WORDS = ['experiment', 'discussion', 'evaluation', 'result']
 APPROACH_WORDS = ['approach', 'proposed', 'method']
 
@@ -23,12 +23,12 @@ def try_labelling(input_file_path):
 
     header = file_util.read_header(input_file_path)
     section_title = header.split(config.BASE_DELIMITER)[1].lower()
-    if substring_match(section_title, INTRO_WORDS):
-        return config.INTRO_LABEL
     if substring_match(section_title, CONCLUSION_WORDS):
         return config.CONCLUSION_LABEL
     if substring_match(section_title, RELATED_WORDS):
         return config.RELATED_LABEL
+    if substring_match(section_title, INTRO_WORDS):
+        return config.INTRO_LABEL
     if substring_match(section_title, EXPERIMENT_WORDS):
         return config.EXPERIMENT_LABEL
     if substring_match(section_title, APPROACH_WORDS):
