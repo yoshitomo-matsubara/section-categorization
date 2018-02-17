@@ -28,15 +28,16 @@ def extract_dois(result, journal_name):
 
 def collect_dois(journal_name, elsevier, output_dir_path, size=100, count=100):
     content = 'content=journals'
-    elements = journal_name.replace(' and ', ' ').split(' ')
-    key = 'KEY(' + '0000'.join(elements) + ')'
-    encoded_key = 'query=' + urllib.parse.quote(key).replace('0000', '+OR+')
+    key = 'SRCTITLE(' + journal_name + ')'
+    encoded_key = 'query=' + str(urllib.parse.quote(key))
     count_str = 'count=' + str(count)
+    date_str = ' date=2000-2016'
+    sort_str = 'sort=-coverDate'
     doi_set = set()
     start_idx = 0
     while len(doi_set) < size:
         start_idx_str = 'start=' + str(start_idx)
-        result = elsevier.search_request([start_idx_str, count_str, encoded_key, content])
+        result = elsevier.search_request([start_idx_str, count_str, date_str, sort_str, encoded_key, content])
         extracted_doi_set, entry_size = extract_dois(result, journal_name)
         if extracted_doi_set is None:
             print('\tNo more DOIs')

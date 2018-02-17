@@ -18,10 +18,8 @@ def read_doi_file(doi_file_path):
     return doi_list
 
 
-def download_text(doi_list, elsevier, is_raw, base_output_dir):
+def download_text(doi_list, dir_name, elsevier, is_raw, base_output_dir):
     http_accept = 'httpAccept=text/plain' if is_raw else 'httpAccept=text/xml'
-    element = doi_list[0].split('/')[1]
-    dir_name = element[element.find('.') + 1:element.find('.', 2)]
     ext = '.txt' if is_raw else '.xml'
     output_dir_path = os.path.join(base_output_dir, dir_name)
     if not os.path.exists(output_dir_path):
@@ -39,7 +37,8 @@ def main(args):
     elsevier = common.Elsevier()
     for doi_file_path in doi_file_path_list:
         doi_list = read_doi_file(doi_file_path)
-        download_text(doi_list, elsevier, args.raw, args.output)
+        journal_name = os.path.basename(doi_file_path).split('.')[0]
+        download_text(doi_list, journal_name, elsevier, args.raw, args.output)
 
 
 if __name__ == '__main__':
