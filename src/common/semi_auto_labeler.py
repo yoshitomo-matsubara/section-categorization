@@ -4,10 +4,10 @@ from util import file_util, config
 
 
 CONCLUSION_WORDS = ['conclusion', 'conclud', 'summary']
-RELATED_WORDS = ['related', 'previous']
+RELATED_WORDS = ['related', 'previous', 'exist', 'preliminar']
 INTRO_WORDS = ['introduction', 'intro', 'motivation', 'background']
 EXPERIMENT_WORDS = ['experiment', 'discussion', 'evaluation', 'result']
-APPROACH_WORDS = ['approach', 'proposed', 'method']
+APPROACH_WORDS = ['approach', 'proposed', 'proposal', 'method']
 
 
 def substring_match(section_title, words):

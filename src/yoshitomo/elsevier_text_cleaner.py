@@ -47,7 +47,7 @@ def clean(paper, base_output_dir_path):
     for section in paper.section_list:
         if section.prefix is None or section.text is None:
             return False
-        file_name = re.sub(re.compile("[!-/:-@[-`{-~ ]"), '_', section.title.lower()) + '.txt'
+        file_name = re.sub('[^a-zA-Z1-9]+', '_', section.title.lower()) + '.txt'
         output_file_path = os.path.join(output_dir_path, file_name)
         with open(output_file_path, 'w') as fp:
             fp.write(section.header() + '\n')
