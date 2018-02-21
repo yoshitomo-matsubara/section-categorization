@@ -34,7 +34,7 @@ class Elsevier:
 class Section:
     def __init__(self, title, index):
         self.child_list = list()
-        self.title = title if title is not None else ''
+        self.title = title.strip() if title is not None else ''
         self.index = index
         self.prefix = str(self.index) + ' ' + self.title
         self.text = None
