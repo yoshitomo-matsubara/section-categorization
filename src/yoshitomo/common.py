@@ -177,6 +177,7 @@ class Paper:
                 self.section_list.append(section)
 
         last_index = len(self.section_list) - 1
+        complete = False
         for index in range(len(self.section_list)):
             section = self.section_list[index]
             section_prefix = section.prefix
@@ -199,4 +200,5 @@ class Paper:
                 if len(valid_index_list) == 0:
                     return False
                 section.text = body_line[body_line.find(section_prefix) + len(section_prefix) + 1:min(valid_index_list)]
-        return True
+                complete = True
+        return complete
