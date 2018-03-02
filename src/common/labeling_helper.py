@@ -38,7 +38,7 @@ def assign_labels(list_file_path, output_dir_path):
         for line in fp.readlines():
             line = line.strip()
             count += 1
-            if count == 0:
+            if count == 0 or len(line) == 0:
                 continue
 
             elements = line.split(DELIMITER)
@@ -53,7 +53,6 @@ def assign_labels(list_file_path, output_dir_path):
                 output_file_name = elements[1] + config.FILE_DELIMITER + output_file_name
 
             output_file_path = os.path.join(output_dir_path, output_parent_dir_path, output_file_name)
-            print(output_dir_path, output_parent_dir_path, output_file_name)
             file_util.copy_file(input_file_path, output_file_path)
 
 
