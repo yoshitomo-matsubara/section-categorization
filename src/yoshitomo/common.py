@@ -38,17 +38,27 @@ class Section:
         self.index = index
         self.prefix = str(self.index) + ' ' + self.title
         self.text = None
-        self.ref_id_list = list()
-        self.ref_id_set = list()
+        self.bib_id_list = list()
+        self.fig_id_list = list()
+        self.table_id_list = list()
+        self.eq_id_list = list()
+        self.bib_id_set = set()
+        self.fig_id_set = set()
+        self.table_id_set = set()
+        self.eq_id_set = set()
 
     def add_child(self, title):
         idx = len(self.child_list) + 1
         self.child_list.append(Section(title, idx))
 
     def header(self):
-        ref_id_list_str = ','.join(self.ref_id_list)
+        bib_id_list_str = ','.join(self.bib_id_list)
+        fig_id_list_str = ','.join(self.fig_id_list)
+        table_id_list_str = ','.join(self.table_id_list)
+        eq_id_list_str = ','.join(self.eq_id_list)
         return '\t'.join([str(self.index), self.title, str(len(self.child_list)),
-                          str(len(self.ref_id_set)), ref_id_list_str])
+                          str(len(self.bib_id_set)), bib_id_list_str, str(len(self.fig_id_set)), fig_id_list_str,
+                          str(len(self.table_id_set)), table_id_list_str, str(len(self.eq_id_set)), eq_id_list_str])
 
 
 class Paper:
@@ -78,6 +88,40 @@ class Paper:
                 subsection_element = sub_child.find(DOC_NS + 'item-toc-section-title')
                 section.add_child(subsection_element.text)
         self.toc_list.append(section)
+
+    def extract_references(self, raw_xml_text, toc_index):
+        index = raw_xml_text.find('refid')
+        bib_id_list = list()
+        fig_id_list = list()
+        table_id_list = list()
+        eq_id_list = list()
+        while index >= 0:
+            raw_xml_text = raw_xml_text[index:]
+            start_idx = raw_xml_text.find('\"')
+            raw_xml_text = raw_xml_text[start_idx + 1:]
+            end_idx = raw_xml_text.find('\"')
+            bib_id_str = raw_xml_text[:end_idx]
+            cr_index = raw_xml_text.find(':cross-ref')
+            index = raw_xml_text.find('refid', cr_index)
+            ref_ids = bib_id_str.split(' ')
+            for ref_id in ref_ids:
+                lower_ref_id = ref_id.lower()
+                if lower_ref_id.startswith('b'):
+                    bib_id_list.append(ref_id)
+                elif lower_ref_id.startswith('f'):
+                    fig_id_list.append(ref_id)
+                elif lower_ref_id.startswith('t'):
+                    table_id_list.append(ref_id)
+                elif lower_ref_id.startswith('e'):
+                    eq_id_list.append(ref_id)
+        self.toc_list[toc_index - 1].bib_id_list.extend(bib_id_list)
+        self.toc_list[toc_index - 1].fig_id_list.extend(fig_id_list)
+        self.toc_list[toc_index - 1].table_id_list.extend(table_id_list)
+        self.toc_list[toc_index - 1].eq_id_list.extend(eq_id_list)
+        self.toc_list[toc_index - 1].bib_id_set = set(self.toc_list[toc_index - 1].bib_id_list)
+        self.toc_list[toc_index - 1].fig_id_set = set(self.toc_list[toc_index - 1].fig_id_list)
+        self.toc_list[toc_index - 1].table_id_set = set(self.toc_list[toc_index - 1].table_id_list)
+        self.toc_list[toc_index - 1].eq_id_set = set(self.toc_list[toc_index - 1].eq_id_list)
 
     def extract_structure(self):
         root = self.xml_tree.getroot()
@@ -120,21 +164,7 @@ class Paper:
                 return False
 
             raw_xml_text = str(ET.tostring(child))
-            index = raw_xml_text.find('refid')
-            ref_id_list = list()
-            while index >= 0:
-                raw_xml_text = raw_xml_text[index:]
-                start_idx = raw_xml_text.find('\"')
-                raw_xml_text = raw_xml_text[start_idx + 1:]
-                end_idx = raw_xml_text.find('\"')
-                ref_id_str = raw_xml_text[:end_idx]
-                index = raw_xml_text.find('refid')
-                ref_ids = ref_id_str.split(' ')
-                for ref_id in ref_ids:
-                    if ref_id.lower().startswith('b'):
-                        ref_id_list.append(ref_id)
-            self.toc_list[toc_index - 1].ref_id_list.extend(ref_id_list)
-            self.toc_list[toc_index - 1].ref_id_set = set(self.toc_list[toc_index - 1].ref_id_list)
+            self.extract_references(raw_xml_text, toc_index)
         return True
 
     def extract_abstract(self, abstract_prefix='Abstract', abstract_suffix='0 false'):
@@ -177,6 +207,7 @@ class Paper:
                 self.section_list.append(section)
 
         last_index = len(self.section_list) - 1
+        complete = False
         for index in range(len(self.section_list)):
             section = self.section_list[index]
             section_prefix = section.prefix
@@ -199,4 +230,5 @@ class Paper:
                 if len(valid_index_list) == 0:
                     return False
                 section.text = body_line[body_line.find(section_prefix) + len(section_prefix) + 1:min(valid_index_list)]
-        return True
+                complete = True
+        return complete

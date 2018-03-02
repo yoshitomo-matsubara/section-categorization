@@ -25,24 +25,34 @@ def output_template_list(input_dir_path, output_file_path):
                 fp.write(input_file_path + DELIMITER + ASSIGNED_LABEL + '\n')
 
 
+def check_if_exist(input_file_path):
+    if os.path.exists(input_file_path):
+        return True
+    print('Could not find ', input_file_path)
+    return False
+
+
 def assign_labels(list_file_path, output_dir_path):
     count = -1
     with open(list_file_path, 'r') as fp:
         for line in fp.readlines():
             line = line.strip()
             count += 1
-            if count == 0:
+            if count == 0 or len(line) == 0:
                 continue
 
             elements = line.split(DELIMITER)
             input_file_path = elements[0]
+            if not os.path.exists(input_file_path):
+                print('Could not find ', input_file_path, 'Label:', elements[1])
+                continue
+
             output_parent_dir_path = os.path.basename((os.path.dirname(input_file_path)))
             output_file_name = os.path.basename(input_file_path)
             if len(elements[1]) == 1:
                 output_file_name = elements[1] + config.FILE_DELIMITER + output_file_name
 
             output_file_path = os.path.join(output_dir_path, output_parent_dir_path, output_file_name)
-            print(output_dir_path, output_parent_dir_path, output_file_name)
             file_util.copy_file(input_file_path, output_file_path)
 
 
