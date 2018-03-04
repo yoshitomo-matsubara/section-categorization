@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 import os
-from util import file_util, config
+from util import file_util
 
 
 DELIMITER = '_'
@@ -29,7 +29,6 @@ def output_dirs(path_list, type, base_output_dir_path):
     output_dir_path = os.path.join(base_output_dir_path, type)
     for path in path_list:
         base_name = os.path.basename(path)
-        # print(os.path.join(output_dir_path, base_name))
         file_util.copy_dir(path, os.path.join(output_dir_path, base_name))
 
 
