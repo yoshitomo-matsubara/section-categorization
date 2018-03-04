@@ -43,3 +43,8 @@ def read_header(file_path):
 def copy_file(src_file_path, dst_file_path):
     make_parent_dirs(dst_file_path)
     shutil.copy(src_file_path, dst_file_path)
+
+
+def copy_dir(src_dir_path, dst_dir_path):
+    make_parent_dirs(dst_dir_path)
+    shutil.copytree(src_dir_path, dst_dir_path)
