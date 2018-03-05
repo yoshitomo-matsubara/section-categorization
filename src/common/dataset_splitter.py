@@ -40,8 +40,9 @@ def main(args):
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description=os.path.basename(__file__))
     arg_parser.add_argument('-input', required=True, help='[input] labeled text dir path')
-    arg_parser.add_argument('-ratio', required=False, default='7:1:2', help='[optional] ratios of training, validation'
+    arg_parser.add_argument('-ratio', required=False, default='7:1:2', help='[optional, param] '
+                                                                            'ratios of training, validation '
                                                                             'and test datasets separated by a colon')
-    arg_parser.add_argument('-rand', action='store_true', help='[optional] randomly sample')
+    arg_parser.add_argument('-rand', action='store_true', help='[optional, flag] randomly sample')
     arg_parser.add_argument('-output', required=True, help='[output] output dir path')
     main(arg_parser.parse_args())
