@@ -55,7 +55,7 @@ def clean(paper, base_output_dir_path):
 
     output_file_path = os.path.join(output_dir_path, 'a-abstract.txt')
     with open(output_file_path, 'w') as fp:
-        fp.write('\t'.join(['0', 'Abstract', '0', '0', '']) + '\n')
+        fp.write('\t'.join(['0', 'Abstract', '0', '0', '', '0', '', '0', '', '0', '']) + '\n')
         fp.write(paper.abstract + '\n')
     return True
 

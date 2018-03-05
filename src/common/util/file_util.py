@@ -40,6 +40,33 @@ def read_header(file_path):
     return header
 
 
+def read_file(file_path):
+    line_list = list()
+    with open(file_path, 'r') as fp:
+        for line in fp.readlines():
+            line_list.append(line.strip())
+    return line_list
+
+
+def read_files(file_path_list):
+    file_line_matrix = list()
+    for file_path in file_path_list:
+        file_line_matrix.append(read_file(file_path))
+    return file_line_matrix
+
+
+def read_file_as_line(file_path, start_idx=0):
+    line_list = read_file(file_path)
+    return ' '.join(line_list[start_idx:])
+
+
+def read_files_as_line_list(file_path_list, start_idx=0):
+    file_line_list = list()
+    for file_path in file_path_list:
+        file_line_list.append(read_file_as_line(file_path, start_idx))
+    return file_line_list
+
+
 def copy_file(src_file_path, dst_file_path):
     make_parent_dirs(dst_file_path)
     shutil.copy(src_file_path, dst_file_path)
