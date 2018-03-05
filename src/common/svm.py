@@ -38,8 +38,7 @@ def main(args):
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description=os.path.basename(__file__))
     arg_parser.add_argument('-input', required=True, help='[input] dataset dir path')
-    arg_parser.add_argument('-model', required=False, help='[optional, input, output]'
-                                                                                ' model file path')
+    arg_parser.add_argument('-model', required=False, help='[optional, input, output] model file path')
     arg_parser.add_argument('-c', required=False, default='-2:2:5:10', help='[optional, param] C parameter')
     arg_parser.add_argument('-output', required=True, help='[output] output dir path')
     main(arg_parser.parse_args())

@@ -29,7 +29,7 @@ def get_param_list(param_str):
 
 
 def load_model(model_file_path):
-    if not os.path.exists(model_file_path):
+    if model_file_path is None or not os.path.exists(model_file_path):
         return None
 
     with open(model_file_path, 'rb') as fp:
