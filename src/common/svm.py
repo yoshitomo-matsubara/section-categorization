@@ -2,25 +2,25 @@ import argparse
 import numpy as np
 import os
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, f1_score
 from util import experiment_util
 
 
 def parameter_tuning(args, dataset):
     c_params = experiment_util.get_param_list(args.c)
-    best_valid_acc = -np.inf
+    best_valid_f1_score = -np.inf
     best_c_param = -np.inf
     best_model = None
     for c_param in c_params:
         svm = SVC(C=c_param)
         svm.fit(dataset.training.feature_mat, dataset.training.labels)
         preds = svm.predict(dataset.validation.feature_mat)
-        valid_acc = accuracy_score(dataset.validation.labels, preds)
-        if valid_acc > best_valid_acc:
-            best_valid_acc = valid_acc
+        valid_f1_score = f1_score(dataset.validation.labels, preds, average='micro')
+        if valid_f1_score > best_valid_f1_score:
+            best_valid_f1_score = valid_f1_score
             best_c_param = c_param
             best_model = svm
-    print('Best validation accuracy:', best_valid_acc, 'Best C:', best_c_param)
+    print('Best validation accuracy:', best_valid_f1_score, 'Best C:', best_c_param)
     return best_model
 
 
@@ -33,6 +33,7 @@ def main(args):
             experiment_util.save_model(model, args.model)
     preds = model.predict(dataset.test.feature_mat)
     print(classification_report(dataset.test.labels, preds))
+    print('Micro-average F1 score:', f1_score(dataset.test.labels, preds, average='micro'))
 
 
 if __name__ == '__main__':
