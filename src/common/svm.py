@@ -33,7 +33,7 @@ def main(args):
             experiment_util.save_model(model, args.model)
     preds = model.predict(dataset.test.feature_mat)
     print(classification_report(dataset.test.labels, preds))
-    print('Micro-average F1 score:', f1_score(dataset.test.labels, preds, average='micro'))
+    print('Micro-averaged F1 score:', f1_score(dataset.test.labels, preds, average='micro'))
 
 
 if __name__ == '__main__':
