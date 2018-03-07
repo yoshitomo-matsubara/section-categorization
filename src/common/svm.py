@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import os
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, classification_report, f1_score
+from sklearn.metrics import classification_report, f1_score
 from util import experiment_util
 
 
