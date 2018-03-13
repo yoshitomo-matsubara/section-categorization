@@ -26,12 +26,18 @@ class Paper:
         self.paper_id = paper_id
         self.feature_dicts = list()
         self.labels = list()
-        for section_number, label, features in sorted(zip(label_mat[:, 2].tolist(), label_mat[:, 0].tolist(), feature_mat.tolist())):
+        count = 0
+        size = feature_mat.shape[0]
+        for section_number, label, features in\
+                sorted(zip(label_mat[:, 2].tolist(), label_mat[:, 0].tolist(), feature_mat.tolist())):
+            count += 1
             self.labels.append(str(label))
             feature_dict = dict()
             for i in range(len(features)):
                 if features[i] != 0.0:
                     feature_dict[str(i)] = features[i]
+            feature_dict['FIRST_SECTION'] = 1 if count == 1 else 0
+            feature_dict['LAST_SECTION'] = 1 if count == size else 0
             self.feature_dicts.append(feature_dict)
 
 
