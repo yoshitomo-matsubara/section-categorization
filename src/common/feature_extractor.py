@@ -42,6 +42,7 @@ def detect_abstract_file(input_file_path_list):
         file_name = os.path.basename(file_path)
         file_label_path_list = list()
         file_label_path_list.append(file_name.split(config.FILE_DELIMITER)[0])
+        file_label_path_list.append(file_util.read_header(file_path).split(config.BASE_DELIMITER)[0])
         file_label_path_list.append(file_path)
         file_label_path_mat.append(file_label_path_list)
         non_abstract_flags.append(not file_name.startswith(config.ABSTRACT_LABEL))

@@ -36,7 +36,7 @@ def make_parent_dirs(file_path):
 
 def read_header(file_path):
     with open(file_path, 'r') as fp:
-        header = fp.readline()
+        header = fp.readline().strip()
     return header
 
 
