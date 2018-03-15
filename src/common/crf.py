@@ -46,5 +46,4 @@ if __name__ == '__main__':
     arg_parser.add_argument('-model', required=False, help='[optional, input, output] model file path')
     arg_parser.add_argument('-c1', required=False, default='0:0.2:6', help='[optional, param] L1 coefficient')
     arg_parser.add_argument('-c2', required=False, default='0:0.2:6', help='[optional, param] L2 coefficient')
-    arg_parser.add_argument('-gamma', required=False, help='[optional, param] gamma for RBF kernel')
     main(arg_parser.parse_args())
