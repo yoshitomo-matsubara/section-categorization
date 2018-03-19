@@ -38,6 +38,7 @@ def main(args):
     preds = model.predict(dataset.test.feature_mat)
     print(classification_report(dataset.test.labels, preds))
     print('Micro-averaged F1 score:', f1_score(dataset.test.labels, preds, average='micro'))
+    experiment_util.error_analysis(dataset.test.labels, preds, args.output)
 
 
 if __name__ == '__main__':
@@ -46,4 +47,5 @@ if __name__ == '__main__':
     arg_parser.add_argument('-model', required=False, help='[optional, input, output] model file path')
     arg_parser.add_argument('-c', required=False, default='-1:3:5:10', help='[optional, param] C parameter')
     arg_parser.add_argument('-gamma', required=False, help='[optional, param] gamma for RBF kernel')
+    arg_parser.add_argument('-output', required=False, help='[output] output graph file path')
     main(arg_parser.parse_args())
