@@ -29,8 +29,9 @@ class Paper:
         self.labels = list()
         count = 0
         size = feature_mat.shape[0]
+        section_numbers = list(map(int, label_mat[:, 2].tolist()))
         for section_number, label, features in\
-                sorted(zip(label_mat[:, 2].tolist(), label_mat[:, 0].tolist(), feature_mat.tolist())):
+                sorted(zip(section_numbers, label_mat[:, 0].tolist(), feature_mat.tolist())):
             count += 1
             self.labels.append(str(label))
             feature_dict = dict()
