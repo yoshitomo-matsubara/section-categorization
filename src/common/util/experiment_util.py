@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pickle
@@ -100,3 +101,64 @@ def save_model(model, model_file_path):
     file_util.make_parent_dirs(model_file_path)
     with open(model_file_path, 'wb') as fp:
         pickle.dump(model, fp)
+
+
+def plot_error_bar_chart(error_dict, output_file_path, length=0.8,
+                         colors=['red', 'green', 'blue', 'orange', 'lime', 'cyan']):
+    index = 0
+    unit_length = length / len(config.LABELS)
+    for true_label in config.LABELS:
+        x = index - length / 2
+        sub_index = 0
+        sub_dict = error_dict[true_label] if true_label in error_dict.keys() else None
+        for pred in config.LABELS:
+            freq = sub_dict[pred] if sub_dict is not None and pred in sub_dict.keys() else 0
+            if index == 0:
+                plt.bar(x + unit_length * sub_index, freq, width=0.1, color=colors[sub_index],
+                        label='Predicted as ' + pred)
+            else:
+                plt.bar(x + unit_length * sub_index, freq, width=0.1, color=colors[sub_index])
+            sub_index += 1
+        index += 1
+
+    plt.xticks(list(range(len(config.LABELS))), config.LABELS, fontsize=12)
+    plt.xlabel('True Labels', fontsize=16)
+    plt.ylabel('False Negative Frequency', fontsize=16)
+    plt.legend(fontsize=12)
+    if output_file_path is not None:
+        file_util.make_parent_dirs(output_file_path)
+        plt.savefig(output_file_path, type='eps', bbox_inches='tight')
+    plt.show()
+
+
+def error_analysis(true_labels, preds, output_file_path):
+    error_dict = dict()
+    for (true_label, pred) in zip(true_labels, preds):
+        if true_label == pred:
+            continue
+
+        if true_label not in error_dict.keys():
+            error_dict[true_label] = dict()
+
+        if pred not in error_dict[true_label].keys():
+            error_dict[true_label][pred] = 0
+
+        error_dict[true_label][pred] += 1
+    plot_error_bar_chart(error_dict, output_file_path)
+
+
+def sequential_error_analysis(list_of_labels, list_of_preds, output_file_path):
+    error_dict = dict()
+    for (labels, preds) in zip(list_of_labels, list_of_preds):
+        for (true_label, pred) in zip(labels, preds):
+            if true_label == pred:
+                continue
+
+            if true_label not in error_dict.keys():
+                error_dict[true_label] = dict()
+
+            if pred not in error_dict[true_label].keys():
+                error_dict[true_label][pred] = 0
+
+            error_dict[true_label][pred] += 1
+    plot_error_bar_chart(error_dict, output_file_path)
