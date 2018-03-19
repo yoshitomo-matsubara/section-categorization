@@ -25,7 +25,7 @@ def get_dir_list(dir_path, is_recursive=False):
 
 
 def make_dirs(dir_path):
-    if not os.path.exists(dir_path):
+    if len(dir_path) > 0 and not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
 
