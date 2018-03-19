@@ -15,7 +15,8 @@ def parameter_tuning(args, dataset):
     best_model = None
     for c1 in c1s:
         for c2 in c2s:
-            crf = CRF(algorithm='lbfgs', c1=c1, c2=c2, max_iterations=100, all_possible_transitions=True)
+            crf = CRF(algorithm='lbfgs', c1=c1, c2=c2, max_iterations=1000,
+                      all_possible_transitions=True, verbose=args.debug)
             crf.fit(dataset.training.list_of_feature_dicts, dataset.training.list_of_labels)
             preds = crf.predict(dataset.validation.list_of_feature_dicts)
             valid_f1_score = metrics.flat_f1_score(dataset.validation.list_of_labels, preds, average='micro')
@@ -46,7 +47,8 @@ if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description=os.path.basename(__file__))
     arg_parser.add_argument('-input', required=True, help='[input] dataset dir path')
     arg_parser.add_argument('-model', required=False, help='[optional, input, output] model file path')
-    arg_parser.add_argument('-c1', required=False, default='0:0.2:6', help='[optional, param] L1 coefficient')
-    arg_parser.add_argument('-c2', required=False, default='0:0.2:6', help='[optional, param] L2 coefficient')
+    arg_parser.add_argument('-c1', required=False, default='0:1:10', help='[optional, param] L1 coefficient')
+    arg_parser.add_argument('-c2', required=False, default='0:1:10', help='[optional, param] L2 coefficient')
+    arg_parser.add_argument('-debug', action='store_true', help='[flag] debug option in training')
     arg_parser.add_argument('-output', required=False, help='[output] output graph file path')
     main(arg_parser.parse_args())
