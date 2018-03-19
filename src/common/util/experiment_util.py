@@ -23,31 +23,42 @@ class Dataset:
 
 
 class Paper:
-    def __init__(self, paper_id, feature_mat, label_mat):
+    def __init__(self, paper_id, feature_mat, label_mat, use_matrix):
         self.paper_id = paper_id
         self.feature_dicts = list()
         self.labels = list()
         count = 0
         size = feature_mat.shape[0]
         section_numbers = list(map(int, label_mat[:, 2].tolist()))
+        list_of_features = list()
         for section_number, label, features in\
                 sorted(zip(section_numbers, label_mat[:, 0].tolist(), feature_mat.tolist())):
             count += 1
             self.labels.append(str(label))
-            feature_dict = dict()
-            for i in range(len(features)):
-                if features[i] != 0.0:
-                    feature_dict[str(i)] = features[i]
-            feature_dict['FIRST_SECTION'] = 1 if count == 1 else 0
-            feature_dict['LAST_SECTION'] = 1 if count == size else 0
-            self.feature_dicts.append(feature_dict)
+            if use_matrix:
+                sub_features = np.zeros(2)
+                sub_features[0] = 1 if count == 1 else 0
+                sub_features[1] = 1 if count == size else 0
+                list_of_features.append(np.hstack((features, sub_features)))
+            else:
+                feature_dict = dict()
+                for i in range(len(features)):
+                    if features[i] != 0.0:
+                        feature_dict[str(i)] = features[i]
+                feature_dict['FIRST_SECTION'] = 1 if count == 1 else 0
+                feature_dict['LAST_SECTION'] = 1 if count == size else 0
+                self.feature_dicts.append(feature_dict)
+        if use_matrix:
+            self.feature_mat = np.array(list_of_features)
 
 
 class PaperData:
-    def __init__(self, dir_path):
+    def __init__(self, dir_path, use_matrix=False):
         self.dir_path = dir_path
+        self.use_matrix = use_matrix
         self.list_of_feature_dicts = list()
         self.list_of_labels = list()
+        self.feature_mats = None
 
     @staticmethod
     def extract_idx_list_dict(file_paths):
@@ -65,19 +76,26 @@ class PaperData:
         feature_mat = np.loadtxt(feature_mat_file_path, delimiter=config.BASE_DELIMITER)
         label_mat = np.loadtxt(label_file_path, delimiter=config.BASE_DELIMITER, dtype=str)
         idx_list_dict = self.extract_idx_list_dict(label_mat[:, 1])
+        feature_mat_list = list()
         for paper_id in idx_list_dict.keys():
             idx_list = idx_list_dict[paper_id]
-            paper = Paper(paper_id, feature_mat[idx_list, :], label_mat[idx_list, :])
-            self.list_of_feature_dicts.append(paper.feature_dicts)
+            paper = Paper(paper_id, feature_mat[idx_list, :], label_mat[idx_list, :], self.use_matrix)
+            if self.use_matrix:
+                feature_mat_list.append(paper.feature_mat)
+            else:
+                self.list_of_feature_dicts.append(paper.feature_dicts)
             self.list_of_labels.append(paper.labels)
+        if self.use_matrix:
+            self.feature_mats = np.array(feature_mat_list)
 
 
 class PaperDataset:
-    def __init__(self, dataset_dir_path):
+    def __init__(self, dataset_dir_path, use_matrix=False):
         self.dataset_dir_path = dataset_dir_path
-        self.training = PaperData(os.path.join(self.dataset_dir_path, config.TRAINING))
-        self.validation = PaperData(os.path.join(self.dataset_dir_path, config.VALIDATION))
-        self.test = PaperData(os.path.join(self.dataset_dir_path, config.TEST))
+        self.use_matrix = use_matrix
+        self.training = PaperData(os.path.join(self.dataset_dir_path, config.TRAINING), self.use_matrix)
+        self.validation = PaperData(os.path.join(self.dataset_dir_path, config.VALIDATION), self.use_matrix)
+        self.test = PaperData(os.path.join(self.dataset_dir_path, config.TEST), self.use_matrix)
         self.training.process()
         self.validation.process()
         self.test.process()
