@@ -35,9 +35,11 @@ def main(args):
         model = parameter_tuning(args, dataset)
         if args.model is not None:
             experiment_util.save_model(model, args.model)
-    preds = model.predict(dataset.test.list_of_feature_dicts)
-    print(metrics.flat_classification_report(dataset.test.list_of_labels, preds))
-    print('Micro-averaged F1 score:', metrics.flat_f1_score(dataset.test.list_of_labels, preds, average='micro'))
+    list_of_preds = model.predict(dataset.test.list_of_feature_dicts)
+    print(metrics.flat_classification_report(dataset.test.list_of_labels, list_of_preds))
+    print('Micro-averaged F1 score:',
+          metrics.flat_f1_score(dataset.test.list_of_labels, list_of_preds, average='micro'))
+    experiment_util.sequential_error_analysis(dataset.test.list_of_labels, list_of_preds, args.output)
 
 
 if __name__ == '__main__':
@@ -46,4 +48,5 @@ if __name__ == '__main__':
     arg_parser.add_argument('-model', required=False, help='[optional, input, output] model file path')
     arg_parser.add_argument('-c1', required=False, default='0:0.2:6', help='[optional, param] L1 coefficient')
     arg_parser.add_argument('-c2', required=False, default='0:0.2:6', help='[optional, param] L2 coefficient')
+    arg_parser.add_argument('-output', required=False, help='[output] output graph file path')
     main(arg_parser.parse_args())
