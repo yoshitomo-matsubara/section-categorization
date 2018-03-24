@@ -1,8 +1,8 @@
-# Section Classification in Scientific Papers
+# Automated Section Categorization in Scientific Papers
 # Team Member
 - **Yoshitomo Matsubara**
--
--
+- **Wei Hu**
+- **Yifan Tian**
 
 # Development Environment
 - Python 3
